@@ -1,9 +1,12 @@
 FROM python:3.7-alpine
 
-WORKDIR /usr/src/app
+COPY requirements.txt /app/
 
-COPY . ./
+RUN cd /app \
+    && pip3 install -r requirements.txt
 
-RUN pip install -r requirements.txt
+COPY . /app
 
-CMD [ "python3", "tweet_stream.py" ]
+EXPOSE 8989
+RUN cd /app
+CMD [ "python3", "/app/tweet_stream.py" ]

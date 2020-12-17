@@ -86,11 +86,12 @@ def send_tweets_to_spark(http_resp, tcp_connection):
     for line in http_resp.iter_lines():
         print(type(line))
         try:
-            # full_tweet = json.loads(line)
-            # print(json.dumps(full_tweet, indent=4, sort_keys=True))
-            # tweet_text = full_tweet['text'].encode("utf-8") + '\n' # pyspark can't accept stream, add '\n'
-            # print("Tweet Text: " + tweet_text)
+            full_tweet = json.loads(line)
+            print(json.dumps(full_tweet, indent=4, sort_keys=True))
+            tweet_text = full_tweet['text'].encode("utf-8") + '\n' # pyspark can't accept stream, add '\n'
+            print("Tweet Text: " + tweet_text)
             print ("------------------------------------------")
+            tcp_connection.send(tweet_text + '\n')
             tcp_connection.send(line)
         except:
             e = sys.exc_info()[0]
@@ -107,7 +108,7 @@ def main():
     TCP_PORT = 8989
     conn = None
     s = socket.socket()
-    s.bind(('', TCP_PORT))
+    s.bind(('0.0.0.0', TCP_PORT))
     s.listen(1)
     print("Waiting for TCP connection...")
     while True:

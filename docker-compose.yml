@@ -26,3 +26,6 @@ services:
       - "8082:8081"
     environment:
       - "SPARK_MASTER=spark://spark-master:7077"
+networks:
+  defaults:
+    driver: docker-spark-cluster
