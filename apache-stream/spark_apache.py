@@ -1,6 +1,6 @@
 from pyspark import SparkConf,SparkContext
 from pyspark.streaming import StreamingContext
-from pyspark.sql import Row,SQLContext
+from pyspark.sql import Row,SQLContext, SparkSession
 import sys
 import requests
 
@@ -15,11 +15,20 @@ ssc = StreamingContext(sc, 2)
 # setting a checkpoint to allow RDD recovery
 ssc.checkpoint("checkpoint_TwitterApp")
 # read data from port 9009
-dataStream = ssc.socketTextStream("0.0.0.0",5678)
+dataStream = ssc.socketTextStream("172.21.0.5", 8989)
 
 
 def aggregate_tags_count(new_values, total_sum):
     return sum(new_values) + (total_sum or 0)
+
+
+def get_spark_session_instance(sparkConf):
+    if ("sparkSessionSingletonInstance" not in globals()):
+        globals()["sparkSessionSingletonInstance"] = SparkSession \
+            .builder \
+            .config(conf=sparkConf) \
+            .getOrCreate()
+    return globals()["sparkSessionSingletonInstance"]
 
 
 def get_sql_context_instance(spark_context):
@@ -43,15 +52,15 @@ def process_rdd(time, rdd):
     print("----------- %s -----------" % str(time))
     try:
         # Get spark sql singleton context from the current context
-        sql_context = get_sql_context_instance(rdd.context)
+        spark = get_spark_session_instance(rdd.context)
         # convert the RDD to Row RDD
         row_rdd = rdd.map(lambda w: Row(hashtag=w[0].encode("utf-8"), hashtag_count=w[1]))
         # create a DF from the Row RDD
-        hashtags_df = sql_context.createDataFrame(row_rdd)
+        hashtags_df = spark.createDataFrame(row_rdd)
         # Register the dataframe as table
         hashtags_df.registerTempTable("hashtags")
         # get the top 10 hashtags from the table using SQL and print them
-        hashtag_counts_df = sql_context.sql("select hashtag, hashtag_count from hashtags order by hashtag_count desc limit 10")
+        hashtag_counts_df = spark.sql("select hashtag, hashtag_count from hashtags order by hashtag_count desc limit 10")
         hashtag_counts_df.show()
         # call this method to prepare top 10 hashtags DF and send them
         send_df_to_dashboard(hashtag_counts_df)
