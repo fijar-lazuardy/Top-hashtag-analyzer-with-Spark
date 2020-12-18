@@ -84,15 +84,17 @@ def get_stream(headers, set, bearer_token):
 
 def send_tweets_to_spark(http_resp, tcp_connection):
     for line in http_resp.iter_lines():
-        print(type(line))
         try:
             full_tweet = json.loads(line)
-            print(json.dumps(full_tweet, indent=4, sort_keys=True))
-            tweet_text = full_tweet['text'].encode("utf-8") + '\n' # pyspark can't accept stream, add '\n'
-            print("Tweet Text: " + tweet_text)
+            # print(json.dumps(full_tweet['data']['text'], indent=4, sort_keys=True))
+            # tweet_text = full_tweet['data']['text'].encode("utf-8") + '\n' # pyspark can't accept stream, add '\n'
+            tweet_text = full_tweet['data']['text'] + '\n' # pyspark can't accept stream, add '\n'
+            print('Tweet: ' + tweet_text, end="")
+
+            # print("Tweet Text: " + tweet_text.decode())
+
             print ("------------------------------------------")
             tcp_connection.send(tweet_text + '\n')
-            tcp_connection.send(line)
         except:
             e = sys.exc_info()[0]
             print("Error: %s" % e.__str__)
@@ -115,7 +117,7 @@ def main():
         conn, addr = s.accept()
         print("Connected... Starting getting tweets.")
         resp = get_stream(headers, set_rule, bearer_token)
-        send_tweets_to_spark(resp,conn)
+        send_tweets_to_spark(resp,"conn")
 
 
 if __name__ == "__main__":
