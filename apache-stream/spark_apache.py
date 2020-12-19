@@ -15,7 +15,7 @@ ssc = StreamingContext(sc, 2)
 # setting a checkpoint to allow RDD recovery
 ssc.checkpoint("checkpoint_TwitterApp")
 # read data from port 9009
-dataStream = ssc.socketTextStream("172.22.0.3", 8989)
+dataStream = ssc.socketTextStream("172.21.0.5", 8989)
 
 
 def aggregate_tags_count(new_values, total_sum):
@@ -43,9 +43,11 @@ def send_df_to_dashboard(df):
     # extract the counts from dataframe and convert them into array
     tags_count = [p.hashtag_count for p in df.select("hashtag_count").collect()]
     # initialize and send the data through REST API
-    url = 'http://localhost:5001/updateData'
-    request_data = {'label': str(top_tags), 'data': str(tags_count)}
-    response = requests.post(url, data=request_data)
+    # url = 'http://0.0.0.0:5000/updateData'
+    print(str(tags_count))
+    print(top_tags)
+    # request_data = {'label': str(top_tags), 'data': str(tags_count)}
+    # response = requests.post(url, json=request_data)
 
 
 def process_rdd(time, rdd):
@@ -70,17 +72,17 @@ def process_rdd(time, rdd):
 
 def print_rdd(time, rdd):
     print("----------- %s -----------" % str(time))
-    print(rdd)
+    print(rdd.collect())
+    tweet_words = rdd.collect()
 # split each tweet into words
-words = dataStream.flatMap(lambda line: line.split(" "))
-words.take(0).foreachRDD(print)
+words = dataStream.map(lambda line: line.split(" "))
+hashtags = words.filter(lambda w: '#' in w).map(lambda x: (x, 1))
+tags_totals = hashtags.updateStateByKey(aggregate_tags_count)
+tags_totals.foreachRDD(process_rdd)
+# words.take(0).foreachRDD(print)
 # filter the words to get only hashtags, then map each hashtag to be a pair of (hashtag,1)
-#hashtags = words.map(lambda x: (x, 1))
-# hashtags = words.filter(lambda w: '#' in w).map(lambda x: (x, 1))
-# adding the count of each hashtag to its last count
-# tags_totals = hashtags.updateStateByKey(aggregate_tags_count)
+
 # do processing for each RDD generated in each interval
-# tags_totals.foreachRDD(process_rdd)
 
 # start the streaming computation
 ssc.start()

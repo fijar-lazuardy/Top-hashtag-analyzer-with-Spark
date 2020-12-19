@@ -7,6 +7,6 @@ RUN cd /app \
 
 COPY . /app
 
-EXPOSE 8989
+EXPOSE 5678
 RUN cd /app
 CMD [ "python3", "/app/tweet_stream.py" ]

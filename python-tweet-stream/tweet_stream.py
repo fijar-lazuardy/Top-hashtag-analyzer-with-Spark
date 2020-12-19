@@ -49,8 +49,7 @@ def delete_all_rules(headers, bearer_token, rules):
 def set_rules(headers, delete, bearer_token):
     # You can adjust the rules if needed
     sample_rules = [
-        {"value": "dog has:images", "tag": "dog pictures"},
-        {"value": "cat has:images -grumpy", "tag": "cat pictures"},
+        {"value": "cat has:hashtags", "tag": "tweet has hashtag"},
     ]
     payload = {"add": sample_rules}
     response = requests.post(
@@ -86,15 +85,18 @@ def send_tweets_to_spark(http_resp, tcp_connection):
     for line in http_resp.iter_lines():
         try:
             full_tweet = json.loads(line)
+            print('masuk sini')
             # print(json.dumps(full_tweet['data']['text'], indent=4, sort_keys=True))
             # tweet_text = full_tweet['data']['text'].encode("utf-8") + '\n' # pyspark can't accept stream, add '\n'
-            tweet_text = full_tweet['data']['text'] + '\n' # pyspark can't accept stream, add '\n'
-            print('Tweet: ' + tweet_text, end="")
+            tweet_text = full_tweet['data']['text'] # pyspark can't accept stream, add '\n'
+            print('Tweet: ' + tweet_text)
+            print(type(tweet_text))
 
             # print("Tweet Text: " + tweet_text.decode())
 
             print ("------------------------------------------")
-            tcp_connection.send(tweet_text + '\n')
+            tcp_connection.send(tweet_text.encode('utf-8'))
+            print("------ KALO BERHASIL MASUK SINI-------")
         except:
             e = sys.exc_info()[0]
             print("Error: %s" % e.__str__)
@@ -107,17 +109,18 @@ def main():
     delete = delete_all_rules(headers, bearer_token, rules)
     set_rule = set_rules(headers, delete, bearer_token)
     TCP_IP = "localhost"
-    TCP_PORT = 8989
+    TCP_PORT = 5678
     conn = None
     s = socket.socket()
     s.bind(('0.0.0.0', TCP_PORT))
     s.listen(1)
     print("Waiting for TCP connection...")
+    conn, addr = s.accept()
+
     while True:
-        conn, addr = s.accept()
         print("Connected... Starting getting tweets.")
         resp = get_stream(headers, set_rule, bearer_token)
-        send_tweets_to_spark(resp,"conn")
+        send_tweets_to_spark(resp,conn)
 
 
 if __name__ == "__main__":

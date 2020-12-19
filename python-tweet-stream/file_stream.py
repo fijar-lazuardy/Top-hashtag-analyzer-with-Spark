@@ -17,6 +17,7 @@ while True:
 
     try:
         with open('./file.txt', 'r') as file:
+            print('masuk sini')
             tweets = file.read().split('|||||')
             number_of_tweets = len(tweets)
             while True:
