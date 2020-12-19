@@ -45,25 +45,29 @@ def send_df_to_database(df):
     top_tags = [str(t.hashtag) for t in df.select("hashtag").collect()]
     # extract the counts from dataframe and convert them into array
     tags_count = [p.hashtag_count for p in df.select("hashtag_count").collect()]
-    print(top_tags)
+    to_send = {}
+    if len(top_tags) == len(tags_count):
+        for i in range(len(top_tags)):
+            to_send[top_tags[i]] = tags_count[i]
+    print(to_send)
     print(tags_count)
     # initialize and send the data through REST API
-    url = 'http://127.0.0.1:5000/update_data'
+    url = 'http://172.30.0.5:5000/update-data'
     print(str(tags_count))
     print(top_tags)
     request_data = {'label': str(top_tags), 'data': str(tags_count)}
-    response = requests.post(url, json=request_data)
+    response = requests.post(url, json=to_send)
 
 conf = SparkConf()
 conf.setAppName("TwitterStreamingApp")
 # create spark instance with the above configuration
 sc = SparkContext(conf=conf)
 sc.setLogLevel("ERROR")
-ssc = StreamingContext(sc, 2)
+ssc = StreamingContext(sc, 5)
 # setting a checkpoint to allow RDD recovery
 ssc.checkpoint("checkpoint_TwitterApp")
 # read data from port 9009
-dstream = ssc.socketTextStream("172.30.0.5", 5678)
+dstream = ssc.socketTextStream("172.30.0.6", 5678)
 
 
 # split each tweet into words

@@ -32,24 +32,27 @@ services:
       - "SPARK_MASTER=spark://spark-master:7077"
     networks:
       - spark-cluster
-  # tweet-streamer:
-  #   build: 
-  #     context: python-tweet-stream
-  #     dockerfile: Dockerfile
-  #   image: tweet-streamer
-  #   container_name: tweet-streamer
-  #   environment: 
-  #     - "PYTHONUNBUFFERED:1"
-  #   env_file: 
-  #     - .env
-  #   networks:
-  #     - spark-cluster
-  # flask-dashboard:
-  #   image: fijarlaz/flask-dashboard:latest
-  #   container_name: flask-dashboard
-  #   ports:
-  #     - "5000:5000"
+  tweet-streamer:
+    build: 
+      context: python-tweet-stream
+      dockerfile: Dockerfile
+    image: tweet-streamer
+    container_name: tweet-streamer
+    environment: 
+      - "PYTHONUNBUFFERED:1"
+    env_file: 
+      - .env
+    networks:
+      - spark-cluster
+  flask-dashboard:
+    build: 
+      context: flask-dashboard
+      dockerfile: Dockerfile
+    image: flask-dashboard
+    container_name: flask-dashboard
+    ports:
+      - "5000:5000"
 networks:
   spark-cluster:
     name: spark-cluster
-    driver: host
+    driver: bridge

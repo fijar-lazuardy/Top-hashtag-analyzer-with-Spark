@@ -4,6 +4,7 @@ import json
 from dotenv import load_dotenv, find_dotenv
 import socket
 import sys
+import time
 # To set your enviornment variables in your terminal run the following line:
 # export 'BEARER_TOKEN'='<your_bearer_token>'
 
@@ -121,6 +122,8 @@ def main():
         print("Connected... Starting getting tweets.")
         resp = get_stream(headers, set_rule, bearer_token)
         send_tweets_to_spark(resp,conn)
+        time.sleep(2)
+        
 
 
 if __name__ == "__main__":

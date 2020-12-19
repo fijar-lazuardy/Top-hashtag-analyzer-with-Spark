@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 from pymongo import MongoClient
 import os
 import json
@@ -22,21 +22,32 @@ def index():
     })
     return render_template('index.html', data=data)
 
-@app.route('/fetch-data')
+@app.route('/fetch-data', methods=['GET'])
 def fetch_data():
-    return 0
+    collection = db['tweets']
+    result = collection.find_one({
+        "_id":1
+    })
+    return jsonify(
+        result
+    )
 
 
 @app.route('/update-data', methods=['POST'])
 def update_data():
     global db
-    files = request.json()
+    files = request.get_json()
     collection = db['tweets']
     print(files)
-    collection.update({
-        "halo":"hai"
-    }, upsert=True)
-    jsonify(
+    updates = {
+        "$set":{
+            "data":[
+                files
+            ]
+        }
+    }
+    collection.update_many({"_id": 1},updates, upsert=True)
+    return jsonify(
         message="Halo, kamu pasti capek ngoding"
     )
 
