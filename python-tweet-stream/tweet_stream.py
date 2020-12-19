@@ -49,7 +49,7 @@ def delete_all_rules(headers, bearer_token, rules):
 def set_rules(headers, delete, bearer_token):
     # You can adjust the rules if needed
     sample_rules = [
-        {"value": "cat has:hashtags", "tag": "tweet has hashtag"},
+        {"value": "context:54.* has:hashtags -is:retweet lang:in", "tag": "musican with hashtag tweeted in indonesian"},
     ]
     payload = {"add": sample_rules}
     response = requests.post(
