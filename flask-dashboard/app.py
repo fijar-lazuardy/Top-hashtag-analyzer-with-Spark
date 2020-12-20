@@ -15,14 +15,7 @@ db = client['tweets']
 
 @app.route('/')
 def index():
-    data = {}
-    collection = db['positive']
-    # Fetch data from mongodb here
-    print(client)
-    item = collection.insert_one({
-        "tweet": "This is an example tweet"
-    })
-    return render_template('index.html', data=data)
+    return render_template('index.html')
 
 
 @app.route('/fetch-data', methods=['GET'])
@@ -44,7 +37,6 @@ def update_data():
     result = []
     for k, v in files.items():
         result.append({k: v})
-    print(result)
     updates = {
         "$set": {
             "data": result
@@ -67,4 +59,5 @@ def test_conn():
 
 
 if __name__ == "__main__":
+    app.config['TEMPLATES_AUTO_RELOAD'] = True
     app.run(port=5000)
