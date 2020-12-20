@@ -22,9 +22,15 @@
         Grafik Trend Hashtag Musik di Twitter Berbahasa Indonesia
       </h3>
       <p class="text-end">
-        Data diupdate per tanggal: <span id="updated-date"></span>
+        Data diupdate per tanggal: <span id="updated-date">...</span>
       </p>
       <div id="chart"></div>
+      <p class="text-center">
+        Hashtag terpopuler saat ini adalah
+        <span class="fw-bold" id="most-popular-name">...</span>
+        dengan jumlah tweet
+        <span class="fw-bold" id="most-popular-total">...</span>
+      </p>
     </div>
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
@@ -43,7 +49,6 @@
         },
         series: [],
         xaxis: {
-          categories: [],
           labels: {
             show: false,
           },
@@ -62,6 +67,20 @@
       chart.render();
     </script>
     <script>
+      function updateDate() {
+        const dateDom = document.querySelector("#updated-date");
+        const currentDate = new Date().toLocaleString();
+        dateDom.innerHTML = currentDate;
+      }
+
+      function updateMostPopular(item) {
+        const popularName = document.querySelector("#most-popular-name");
+        popularName.innerHTML = item.name;
+        const popularTotal = document.querySelector("#most-popular-total");
+        popularTotal.innerHTML = item.total;
+      }
+    </script>
+    <script>
       async function fetchData() {
         try {
           const url = "/fetch-data";
@@ -69,8 +88,16 @@
           const data = await response.text();
           const jsonData = JSON.parse(data);
           const values = [];
+          const mostPopular = {
+            name: "",
+            total: -1,
+          };
           jsonData.data.forEach((item) => {
             for (let key in item) {
+              if (item[key] > mostPopular.total) {
+                mostPopular.name = key;
+                mostPopular.total = item[key];
+              }
               values.push({
                 x: key,
                 y: item[key],
@@ -78,6 +105,8 @@
             }
           });
           chart.updateSeries([{ name: "Hashtag", data: values }]);
+          updateDate();
+          updateMostPopular(mostPopular);
         } catch (error) {
           console.log(error);
         }

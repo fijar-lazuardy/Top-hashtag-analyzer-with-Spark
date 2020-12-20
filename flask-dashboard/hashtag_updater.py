@@ -5,7 +5,7 @@ import json
 
 
 def get_random_number():
-    return random.randint(0, 2000)
+    return random.randint(1000, 2000)
 
 
 def main():
