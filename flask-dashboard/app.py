@@ -7,7 +7,8 @@ app = Flask(__name__)
 
 username = os.environ.get('MONGO_INITDB_ROOT_USERNAME')
 password = os.environ.get('MONGO_INITDB_ROOT_PASSWORD')
-client = MongoClient('mongodb://%s:%s@35.226.114.12:27017/' % (username, password))
+#client = MongoClient('mongodb://127.0.0.1:27017/')
+client = MongoClient('mongodb://mongo:pdbtim7@localhost:27017/')
 
 db = client['tweets']
 
@@ -50,6 +51,14 @@ def update_data():
     return jsonify(
         message="Halo, kamu pasti capek ngoding"
     )
+@app.route('/test-db', methods=['GET'])
+def test_conn():
+    global db
+    collection = db['test']
+    collection.insert_one({'text':'This is just a test'})
+    return jsonify(
+            message='Test success'
+            )
 
 if __name__ == "__main__":
     app.run(port=5000)
