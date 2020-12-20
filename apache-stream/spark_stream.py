@@ -42,7 +42,7 @@ def process_rdd(time, rdd):
         print("Still empty")
 def send_df_to_database(df):
     # extract the hashtags from dataframe and convert them into array
-    top_tags = [str(t.hashtag) for t in df.select("hashtag").collect()]
+    top_tags = [str(t.hashtag).lower() for t in df.select("hashtag").collect()]
     # extract the counts from dataframe and convert them into array
     tags_count = [p.hashtag_count for p in df.select("hashtag_count").collect()]
     to_send = {}
@@ -52,7 +52,7 @@ def send_df_to_database(df):
     print(to_send)
     print(tags_count)
     # initialize and send the data through REST API
-    url = 'http://172.30.0.5:5000/update-data'
+    url = 'http://34.70.144.224:5000/update-data'
     print(str(tags_count))
     print(top_tags)
     request_data = {'label': str(top_tags), 'data': str(tags_count)}
