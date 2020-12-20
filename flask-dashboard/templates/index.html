@@ -1,11 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <p>test</p>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard Popular Hashtag from Twitter</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <nav class="navbar navbar-dark bg-primary">
+      <div class="container my-2">
+        <span class="navbar-brand mb-0 h1">Spark Streaming</span>
+      </div>
+    </nav>
+    <div class="container my-3">
+      <h3 class="text-center">
+        Grafik Trend Hashtag Musik di Twitter Berbahasa Indonesia
+      </h3>
+      <p class="text-end">
+        Data diupdate per tanggal: <span id="updated-date">...</span>
+      </p>
+      <div id="chart"></div>
+      <p class="text-center">
+        Hashtag terpopuler saat ini adalah
+        <span class="fw-bold" id="most-popular-name">...</span>
+        dengan jumlah tweet
+        <span class="fw-bold" id="most-popular-total">...</span>
+      </p>
+    </div>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script>
+      var options = {
+        chart: {
+          height: 500,
+          type: "bar",
+        },
+        dataLabels: {
+          enabled: false,
+        },
+        series: [],
+        xaxis: {
+          labels: {
+            show: false,
+          },
+        },
+        noData: {
+          text: "Mohon tunggu, sedang memuat data...",
+        },
+        plotOptions: {
+          bar: {
+            distributed: true,
+          },
+        },
+      };
+
+      var chart = new ApexCharts(document.querySelector("#chart"), options);
+      chart.render();
+    </script>
+    <script>
+      function updateDate() {
+        const dateDom = document.querySelector("#updated-date");
+        const currentDate = new Date().toLocaleString();
+        dateDom.innerHTML = currentDate;
+      }
+
+      function updateMostPopular(item) {
+        const popularName = document.querySelector("#most-popular-name");
+        popularName.innerHTML = item.name;
+        const popularTotal = document.querySelector("#most-popular-total");
+        popularTotal.innerHTML = item.total;
+      }
+    </script>
+    <script>
+      async function fetchData() {
+        try {
+          const url = "/fetch-data";
+          const response = await fetch(url);
+          const data = await response.text();
+          const jsonData = JSON.parse(data);
+          const values = [];
+          const mostPopular = {
+            name: "",
+            total: -1,
+          };
+          jsonData.data.forEach((item) => {
+            for (let key in item) {
+              if (item[key] > mostPopular.total) {
+                mostPopular.name = key;
+                mostPopular.total = item[key];
+              }
+              values.push({
+                x: key,
+                y: item[key],
+              });
+            }
+          });
+          chart.updateSeries([{ name: "Hashtag", data: values }]);
+          updateDate();
+          updateMostPopular(mostPopular);
+        } catch (error) {
+          console.log(error);
+        }
+      }
+      setInterval(() => {
+        fetchData();
+      }, 1000);
+    </script>
+  </body>
 </html>
