@@ -36,10 +36,11 @@ def process_rdd(time, rdd):
         hashtag_counts_df.show()
         # call this method to prepare top 10 hashtags DF and send them
         send_df_to_database(hashtag_counts_df)
-    except:
+    except Exception as e:
 #         e = sys.exc_info()[0]
 #         print("Error: %s" % e)
-        print("Still empty")
+        print(e)
+        
 def send_df_to_database(df):
     # extract the hashtags from dataframe and convert them into array
     top_tags = [str(t.hashtag).lower() for t in df.select("hashtag").collect()]
