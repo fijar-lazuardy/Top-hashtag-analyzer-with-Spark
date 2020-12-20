@@ -1,0 +1,25 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "fijar-lazuardy",
+      "name": "Fijar Lazuardy",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/32705957?v=4",
+      "profile": "https://github.com/fijar-lazuardy",
+      "contributions": [
+        "infra",
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "pdb-7-spark-streaming",
+  "projectOwner": "fijar-lazuardy",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": true
+}
