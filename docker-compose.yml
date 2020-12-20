@@ -44,14 +44,14 @@ services:
       - .env
     networks:
       - spark-cluster
-  flask-dashboard:
-    build: 
-      context: flask-dashboard
-      dockerfile: Dockerfile
-    image: flask-dashboard
-    container_name: flask-dashboard
-    ports:
-      - "5000:5000"
+  # flask-dashboard:
+  #   build: 
+  #     context: flask-dashboard
+  #     dockerfile: Dockerfile
+  #   image: flask-dashboard
+  #   container_name: flask-dashboard
+  #   ports:
+  #     - "5000:5000"
 networks:
   spark-cluster:
     name: spark-cluster

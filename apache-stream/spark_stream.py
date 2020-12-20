@@ -42,7 +42,7 @@ def process_rdd(time, rdd):
         print("Still empty")
 def send_df_to_database(df):
     # extract the hashtags from dataframe and convert them into array
-    top_tags = [str(t.hashtag) for t in df.select("hashtag").collect()]
+    top_tags = [str(t.hashtag).lower() for t in df.select("hashtag").collect()]
     # extract the counts from dataframe and convert them into array
     tags_count = [p.hashtag_count for p in df.select("hashtag_count").collect()]
     to_send = {}
