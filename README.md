@@ -18,6 +18,7 @@ A Spark app that is submitted before will iterate all tweets received from socke
 
 - Docker
 - dokcer-compose
+- A running MongoDB instance
 
 ## Run the app
 
