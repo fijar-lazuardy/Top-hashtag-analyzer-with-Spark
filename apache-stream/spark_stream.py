@@ -51,11 +51,8 @@ def send_df_to_database(df):
         for i in range(len(top_tags)):
             to_send[top_tags[i]] = tags_count[i]
     print(to_send)
-    print(tags_count)
     # initialize and send the data through REST API
     url = 'http://34.70.144.224:5000/update-data'
-    print(str(tags_count))
-    print(top_tags)
     request_data = {'label': str(top_tags), 'data': str(tags_count)}
     response = requests.post(url, json=to_send)
 
