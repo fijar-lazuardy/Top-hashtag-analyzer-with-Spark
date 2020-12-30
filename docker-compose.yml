@@ -32,26 +32,30 @@ services:
       - "SPARK_MASTER=spark://spark-master:7077"
     networks:
       - spark-cluster
-  tweet-streamer:
+  tweet_streamer:
     build: 
       context: python-tweet-stream
       dockerfile: Dockerfile
-    image: tweet-streamer
-    container_name: tweet-streamer
+    image: tweet_streamer
+    container_name: tweet_streamer
     environment: 
       - "PYTHONUNBUFFERED:1"
     env_file: 
       - .env
     networks:
       - spark-cluster
-  # flask-dashboard:
-  #   build: 
-  #     context: flask-dashboard
-  #     dockerfile: Dockerfile
-  #   image: flask-dashboard
-  #   container_name: flask-dashboard
-  #   ports:
-  #     - "5000:5000"
+  apache_stream:
+    build:
+      context: apache-stream
+      dockerfile: Dockerfile
+    image: apache_stream
+    container_name: apache_stream
+    environment:
+      - "ENABLE_INIT_DAEMON=false"
+    networks:
+      - spark-cluster
+    links:
+      - "spark-master:spark-master"
 networks:
   spark-cluster:
     name: spark-cluster

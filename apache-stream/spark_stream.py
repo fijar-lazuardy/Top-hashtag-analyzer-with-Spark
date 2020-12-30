@@ -65,7 +65,7 @@ ssc = StreamingContext(sc, 5)
 # setting a checkpoint to allow RDD recovery
 ssc.checkpoint("checkpoint_TwitterApp")
 # read data from port 9009
-dstream = ssc.socketTextStream("172.30.0.6", 5678)
+dstream = ssc.socketTextStream("tweet_streamer", 5678)
 
 
 # split each tweet into words
