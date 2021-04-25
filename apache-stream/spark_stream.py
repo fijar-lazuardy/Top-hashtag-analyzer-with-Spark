@@ -52,7 +52,7 @@ def send_df_to_database(df):
             to_send[top_tags[i]] = tags_count[i]
     print(to_send)
     # initialize and send the data through REST API
-    url = 'http://34.70.144.224:5000/update-data'
+    url = 'http://127.0.0.1:5000/update-data'
     request_data = {'label': str(top_tags), 'data': str(tags_count)}
     response = requests.post(url, json=to_send)
 
@@ -61,10 +61,10 @@ conf.setAppName("TwitterStreamingApp")
 # create spark instance with the above configuration
 sc = SparkContext(conf=conf)
 sc.setLogLevel("ERROR")
-ssc = StreamingContext(sc, 5)
+ssc = StreamingContext(sc, 2)
 # setting a checkpoint to allow RDD recovery
 ssc.checkpoint("checkpoint_TwitterApp")
-# read data from port 9009
+# read data from port 5678
 dstream = ssc.socketTextStream("tweet_streamer", 5678)
 
 

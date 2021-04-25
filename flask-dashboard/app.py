@@ -8,7 +8,8 @@ app = Flask(__name__)
 username = os.environ.get('MONGO_INITDB_ROOT_USERNAME')
 password = os.environ.get('MONGO_INITDB_ROOT_PASSWORD')
 #client = MongoClient('mongodb://127.0.0.1:27017/')
-client = MongoClient('mongodb://mongo:pdbtim7@34.70.144.224:27017/')
+# client = MongoClient('mongodb://mongo:pdbtim7@34.70.144.224:27017/')
+client = MongoClient('mongodb://127.0.0.1:27017/')
 
 db = client['tweets']
 
@@ -44,7 +45,7 @@ def update_data():
     }
     collection.update_many({"_id": 1}, updates, upsert=True)
     return jsonify(
-        message="Halo, kamu pasti capek ngoding"
+        message="Masuk"
     )
 
 

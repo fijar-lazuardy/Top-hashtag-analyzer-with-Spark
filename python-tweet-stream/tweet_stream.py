@@ -109,7 +109,7 @@ def main():
     rules = get_rules(headers, bearer_token)
     delete = delete_all_rules(headers, bearer_token, rules)
     set_rule = set_rules(headers, delete, bearer_token)
-    TCP_IP = "localhost"
+    # TCP_IP = "localhost"
     TCP_PORT = 5678
     conn = None
     s = socket.socket()
@@ -121,9 +121,8 @@ def main():
     while True:
         print("Connected... Starting getting tweets.")
         resp = get_stream(headers, set_rule, bearer_token)
-        send_tweets_to_spark(resp,conn)
+        send_tweets_to_spark(resp, conn)
         time.sleep(2)
-        
 
 
 if __name__ == "__main__":
