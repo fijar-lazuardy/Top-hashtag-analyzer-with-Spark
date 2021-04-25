@@ -122,7 +122,7 @@ def main():
         print("Connected... Starting getting tweets.")
         resp = get_stream(headers, set_rule, bearer_token)
         send_tweets_to_spark(resp, conn)
-        time.sleep(2)
+        time.sleep(5)
 
 
 if __name__ == "__main__":

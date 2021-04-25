@@ -33,14 +33,14 @@ services:
     networks:
       - spark-cluster
   tweet_streamer:
-    build: 
+    build:
       context: python-tweet-stream
       dockerfile: Dockerfile
     image: tweet_streamer
     container_name: tweet_streamer
     env_file:
       - .env
-    environment: 
+    environment:
       - "PYTHONUNBUFFERED=1"
       - "BEARER_TOKEN=${BEARER_TOKEN}"
     networks:
@@ -69,7 +69,7 @@ services:
 #    - "27017:27017"
 #    networks:
 #      - spark-cluster
-  flask-ui:
+  flask-dashboard:
     build:
       context: flask-dashboard
       dockerfile: Dockerfile
@@ -77,9 +77,6 @@ services:
     container_name: flask-dashboard
     env_file:
       - .env
-    environment:
-      - 'MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}'
-      - 'MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}'
     ports:
     - "5000:5000"
     networks:

@@ -1,11 +1,13 @@
-from pyspark import SparkConf,SparkContext
+from pyspark import SparkConf, SparkContext
 from pyspark.streaming import StreamingContext
-from pyspark.sql import Row,SQLContext, SparkSession
+from pyspark.sql import Row, SQLContext, SparkSession
 import sys
 import requests
 
+
 def aggregate_tags_count(new_values, total_sum):
     return sum(new_values) + (total_sum or 0)
+
 
 def get_spark_session_instance(sparkConf):
     if ("sparkSessionSingletonInstance" not in globals()):
@@ -15,10 +17,12 @@ def get_spark_session_instance(sparkConf):
             .getOrCreate()
     return globals()["sparkSessionSingletonInstance"]
 
+
 def get_sql_context_instance(spark_context):
     if ('sqlContextSingletonInstance' not in globals()):
         globals()['sqlContextSingletonInstance'] = SQLContext(spark_context)
     return globals()['sqlContextSingletonInstance']
+
 
 def process_rdd(time, rdd):
     print("----------- %s -----------" % str(time))
@@ -32,15 +36,17 @@ def process_rdd(time, rdd):
         # Register the dataframe as table
         hashtags_df.registerTempTable("hashtags")
         # get the top 10 hashtags from the table using SQL and print them
-        hashtag_counts_df = sql_context.sql("select hashtag, hashtag_count from hashtags order by hashtag_count desc limit 10")
+        hashtag_counts_df = sql_context.sql(
+            "select hashtag, hashtag_count from hashtags order by hashtag_count desc limit 10")
         hashtag_counts_df.show()
         # call this method to prepare top 10 hashtags DF and send them
         send_df_to_database(hashtag_counts_df)
     except Exception as e:
-#         e = sys.exc_info()[0]
-#         print("Error: %s" % e)
+        #         e = sys.exc_info()[0]
+        #         print("Error: %s" % e)
         print(e)
-        
+
+
 def send_df_to_database(df):
     # extract the hashtags from dataframe and convert them into array
     top_tags = [str(t.hashtag).lower() for t in df.select("hashtag").collect()]
@@ -51,10 +57,16 @@ def send_df_to_database(df):
         for i in range(len(top_tags)):
             to_send[top_tags[i]] = tags_count[i]
     print(to_send)
+    print(tags_count)
+    headers = {
+        'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36'
+    }
     # initialize and send the data through REST API
-    url = 'http://127.0.0.1:5000/update-data'
-    request_data = {'label': str(top_tags), 'data': str(tags_count)}
-    response = requests.post(url, json=to_send)
+    url = 'http://flask-dashboard:5000/update-data'
+    print(str(tags_count))
+    print(top_tags)
+    response = requests.post(url, json=to_send, headers=headers)
+
 
 conf = SparkConf()
 conf.setAppName("TwitterStreamingApp")
@@ -64,23 +76,15 @@ sc.setLogLevel("ERROR")
 ssc = StreamingContext(sc, 2)
 # setting a checkpoint to allow RDD recovery
 ssc.checkpoint("checkpoint_TwitterApp")
-# read data from port 5678
+# read data from port 9009
 dstream = ssc.socketTextStream("tweet_streamer", 5678)
-
-
 # split each tweet into words
 words = dstream.flatMap(lambda line: line.split(" "))
 hashtags = words.filter(lambda w: '#' in w).map(lambda x: (x, 1))
-
-
-
 hashtags.foreachRDD(lambda rdd: print(rdd.collect()))
 tags_totals = hashtags.updateStateByKey(aggregate_tags_count)
-
 # do processing for each RDD generated in each interval
 # tags_totals.foreachRDD(process_rdd)
 tags_totals.foreachRDD(process_rdd)
-
-
-ssc.start()            
+ssc.start()
 ssc.awaitTermination()  
